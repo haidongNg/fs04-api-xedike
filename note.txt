@@ -1,0 +1,9 @@
+git init
+git remote add origin repo
+git status
+git commit -m
+git push
+git clone
+
+git pull
+git fetch
