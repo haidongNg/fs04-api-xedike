@@ -5,5 +5,7 @@ git commit -m
 git push
 git clone
 
-git pull
+git pull -u origin master
 git fetch
+
+git remote remove origin
