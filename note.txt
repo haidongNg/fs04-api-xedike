@@ -1,3 +1,21 @@
+get => herder param
+post => header param body
+put
+delete
+
+middleware
+- req
+- res // ket thuc
+- next // nhay den middleware
+
+
+APi nextJS,x
+app express
+
+
+
+
+
 git init
 git remote add origin repo
 git status
