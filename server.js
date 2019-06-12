@@ -26,7 +26,7 @@ mongoose.connect('mongodb://localhost:27017/xedike', {useNewUrlParser: true, use
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-app.use('/api/users', require('./api/users'));
+app.use('/api/users', require('./routes/api/users'));
 
 
 const port = process.env.PORT || 5000;
