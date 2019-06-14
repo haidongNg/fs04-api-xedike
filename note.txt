@@ -1,3 +1,31 @@
+auth 
++ Authencation: 
++ Authorization: phan quyen
+
+logout 
++logout
++currentTime > exp
+    - new Date().getTime() / 1000
+    - ms
+
+
+fingerprint
+
+lognin // body
++lay database
++validate
++siccess - token
+
+Register
++lay thong tin
++validate   - sai cac thong tin 
+            - unique    + email
+                        + phone
++hashpassword
+
+salt
+bcrypt
+
 get => herder param
 post => header param body
 put
@@ -27,3 +55,5 @@ git pull -u origin master
 git fetch
 
 git remote remove origin
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkQGdtYWlsLmNvbSIsImZ1bGxOYW1lIjoiRG9uZyIsInVzZXJUeXBlIjoicGFzc2VuZ2VyIiwiaWF0IjoxNTYwNDMzMzQ5LCJleHAiOjE1NjA0MzY5NDl9.G7QyQZq2FpFeLpNXCifu0Bz_PpfQ0_0rn3yhsnITBAg

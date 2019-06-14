@@ -6,7 +6,7 @@ const app = express();
 // my packages
 
 
-mongoose.connect('mongodb://localhost:27017/xedike', {useNewUrlParser: true, useCreateIndex: true})
+mongoose.connect('mongodb://localhost:27017/xedike', { useNewUrlParser: true, useCreateIndex: true })
     .then(() => console.log('Connected to DB'))
     .catch((err) => console.log(err));
 
@@ -24,9 +24,9 @@ mongoose.connect('mongodb://localhost:27017/xedike', {useNewUrlParser: true, use
 
 // parser middleware
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/users', require('./routes/api/users'));
+app.use('/api/users', require('./routes/api/index'));
 
 
 const port = process.env.PORT || 5000;
