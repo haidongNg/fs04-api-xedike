@@ -15,7 +15,8 @@ const register = (req, res) => {
     // gia dinh input valid
     User.findOne({ $or: [{ email, phone }] })
         .then(user => {
-            if (user) return Promise.reject({ errors: 'Email or Phone exists' });
+            if(user) return Promise.reject({errors: 'Email or Phone exists'})
+            
             const newUser = new User({
                 email, password, fullName, userType, phone, dateOfBirth
             });
@@ -65,6 +66,11 @@ const register = (req, res) => {
 //         .catch((err) => { res.status(400).json(err) })
 // });
 
+
+// route    POST /api/users/login
+// desc     login
+// access   PUBLIC
+
 const login = (req, res) => {
     const { email, password } = req.body;
 
@@ -93,9 +99,7 @@ const login = (req, res) => {
         })
         .catch(err => res.status(400).json(err))
 }
-// route    POST /api/users/login
-// desc     login
-// access   PUBLIC
+
 // router.post('/login', (req, res) => {
 //     const { email, password } = req.body;
 
