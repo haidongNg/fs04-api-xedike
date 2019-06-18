@@ -26,7 +26,11 @@ mongoose.connect('mongodb://localhost:27017/xedike', { useNewUrlParser: true, us
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/users', require('./routes/api/index'));
+// static
+app.use('/uploads', express.static('uploads'));
+
+// router
+app.use('/api/users', require('./routes/api/users/index'));
 
 
 const port = process.env.PORT || 5000;

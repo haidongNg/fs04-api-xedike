@@ -14,7 +14,7 @@ fingerprint
 lognin // body
 +lay database
 +validate
-+siccess - token
++success - token
 
 Register
 +lay thong tin
@@ -55,5 +55,3 @@ git pull -u origin master
 git fetch
 
 git remote remove origin
-
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkQGdtYWlsLmNvbSIsImZ1bGxOYW1lIjoiRG9uZyIsInVzZXJUeXBlIjoicGFzc2VuZ2VyIiwiaWF0IjoxNTYwNDMzMzQ5LCJleHAiOjE1NjA0MzY5NDl9.G7QyQZq2FpFeLpNXCifu0Bz_PpfQ0_0rn3yhsnITBAg
