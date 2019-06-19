@@ -103,9 +103,69 @@ const uploadAvatar = (req, res, next) => {
         .catch(err => res.status(400).json(err))
 }
 
+
+// route    GET /api/users/
+// desc     get all user
+// access   PUBLIC (Tat ca nguoi dung deu co the access)
+
+const getAllUser  = async (req, res, next) => {
+    // User.find({})
+    //     .then(user => res.status(200).json({message: 'success', user}))
+    //     .catch(err => res.status(400).json(err))
+    const users = await User.find({}, {password: 0});
+    if(!users) return res.status(400).json({errors: 'List User not found'})
+    res.status(200).json({message: 'success', users})
+}
+
+// route    GET /api/users/:userId
+// desc     get user
+// access   PUBLIC (Tat ca nguoi dung deu co the access)
+
+const getUserId = async (req, res, next) => {
+    const {userId} = req.params;
+    // User.findById(userId)
+    //     .then(user => {
+    //         if(!user) return Promise.reject({errors: 'User not found'});
+    //         res.status(200).json(user);
+    //     })
+    //     .catch(err => res.status(400).json(err))
+    console.log(userId);
+    const user = await User.findById(userId);
+    if(!user) return res.status(400).json({errors: 'User not found'});
+
+    res.status(200).json(user);
+}
+
+
+// route    PUT /api/users/:userId
+// desc     PUT user
+// access   PRIVATE (Chi co user dang nhap vao he thong thi moi duoc chinh sua)
+
+const updateUser = async (req, res, next) => {
+    const {id} = req.user;
+    const userRes = await User.findById(id);
+    if(!userRes) return res.status(400).json({errors: 'User not found'});
+    const user = await Object.assign(userRes, req.body);
+    const userUp = await user.save();
+    
+    res.status(200).json({message: 'success', userUp});
+}
+
+const deleteUser = async (req, res, next) => {
+    const {id} = req.user;
+    const newUser = await User.findById(id);
+    if(!newUser) return res.status(400).json({errors: 'User not found'});
+    await newUser.remove();
+    res.status(200).json({message: 'success'});
+}
+
 module.exports = {
     register,
     login,
     test_private,
-    uploadAvatar
+    uploadAvatar,
+    getAllUser,
+    getUserId,
+    updateUser,
+    deleteUser
 }

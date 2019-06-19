@@ -12,7 +12,7 @@ const authenticating = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
-        res.status(400).json({ errors: 'Ban khong the xem' })
+        res.status(401).json({ errors: 'Ban khong the xem' })
     }
 
 }
@@ -29,7 +29,7 @@ const authorizing = (userTypeArray) => {
         if (userTypeArray.indexOf(userType) > -1) {
             return next();
         } else {
-            res.status(400).json({ errors: 'Ban da dang nhap. nhung khong co quyen vao' })
+            res.status(403).json({ errors: 'Ban da dang nhap. nhung khong co quyen vao' })
         }
 
 
