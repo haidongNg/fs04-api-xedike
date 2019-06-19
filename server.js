@@ -31,7 +31,7 @@ app.use('/uploads', express.static('uploads'));
 
 // router
 app.use('/api/users', require('./routes/api/users/index'));
-
+app.use('/api/trips', require('./routes/api/trips/index'));
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
