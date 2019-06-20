@@ -1,6 +1,7 @@
 // 3rd packages
 const express = require('express');
 const mongoose = require('mongoose');
+const passport = require('passport');
 const app = express();
 
 // my packages
@@ -26,6 +27,9 @@ mongoose.connect('mongodb://localhost:27017/xedike', { useNewUrlParser: true, us
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Middleware: passport
+app.use(passport.initialize());
+require('./config/passport')(passport);
 // static
 app.use('/uploads', express.static('uploads'));
 

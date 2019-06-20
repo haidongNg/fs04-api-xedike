@@ -4,7 +4,7 @@ const {authenticating, authorizing} = require('../../../middleware/auth');
 const {User} = require('../../../models/user');
 const upload = require('../../../middleware/uploadImage');
 const router = express.Router();
-
+const passport = require('passport');
 
 
 router.get('/:userId', userController.getUserId);
@@ -26,8 +26,8 @@ router.post('/login', userController.login);
 
 
 router.get('/test-private',
-    authenticating,
-    authorizing(['passenger', 'admin']),
+    passport.authenticate('jwt', {session: false}),
+    authorizing(['passenger']),
     userController.test_private);
 
 router.post('/upload-avatar',
