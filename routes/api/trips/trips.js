@@ -4,11 +4,11 @@ const { User } = require('../../../models/user');
 
 const createTrip = (req, res, next) => {
     // const { locationFrom, locationTo, startTime, availableSeats, free} = req.body;
-    const driverId  = req.user.id;
+    const driverId = req.user.id;
     User.findById(driverId)
         .then(driver => {
-            if(!driver) return Promise.reject({errors: 'Error Driver'});
-            const trip = {...req.body, driverId}
+            if (!driver) return Promise.reject({ errors: 'Error Driver' });
+            const trip = { ...req.body, driverId }
             const newTrip = new Trip(trip);
             return newTrip.save();
         })
@@ -16,22 +16,50 @@ const createTrip = (req, res, next) => {
         .catch(err => res.status(400).json(err))
 }
 
+// Async/await
+// const bookTrip = async (req, res, next) => {
+//     const {tripId} = req.params; // id trip
+//     const {numberOfBookinhSeats} = req.body;
+//     console.log(tripId)
+//     const passengerId = req.user.id;
+//     const passenger = await User.findById(passengerId);
+//     const trip = await Trip.findById(tripId);
 
-const bookTrip = async (req, res, next) => {
-    const {tripId} = req.params;
-    console.log(tripId)
+//     if(!passenger) return res.status(400).json({errors: 'passenger not found'});
+//     if(!trip) return res.status(400).json({errors: 'trip not found'});
+//     if(numberOfBookinhSeats > trip.availableSeats) return res.status(400).json({errors: 'Your book'})
+
+//     trip.availableSeats -= numberOfBookinhSeats;
+//     trip.passengerIDs.push(passengerId);
+//     const savedTrip = await trip.save();
+//     res.status(200).json(savedTrip)
+// }
+
+// Promise all
+const bookTrip = (req, res, next) => {
+    const { tripId } = req.params; // id trip
+    const { numberOfBookingSeats } = req.body;
     const passengerId = req.user.id;
-    const passenger = await User.findById(passengerId);
-    const trip = await Trip.findById(tripId);
 
-    if(!passenger) return res.status(400).json({errors: 'passenger not found'});
-    if(!trip) return res.status(400).json({errors: 'trip not found'});
-    
-    trip.passengerIDs.push(passengerId);
-    const savedTrip = await trip.save();
-    res.status(200).json(savedTrip)
+    Promise.all([
+        User.findById(passengerId),
+        Trip.findById(tripId),
+    ])
+        .then(results => {
+            const passenger = results[0];
+            const trip = results[1];
+
+            if (!passenger) return Promise.reject({ errors: 'passenger not found' });
+            if (!trip) return Promise.reject({ errors: 'trip not found' });
+            if (numberOfBookingSeats > trip.availableSeats) return Promise.reject({ errors: 'Your booking is over limitation' })
+
+            trip.availableSeats -= numberOfBookingSeats;
+            trip.passengerIDs.push(passengerId);
+            return trip.save();
+        })
+        .then(trip => res.status(200).json(trip))
+        .catch(err => res.status(400).json(err))
 }
-
 module.exports = {
     createTrip,
     bookTrip

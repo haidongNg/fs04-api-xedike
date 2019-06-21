@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const validateRegisterInput = require('../../../validation/validateRegisterInput');
 const { User } = require('../../../models/user');
 
 // const router = express.Router();
@@ -10,33 +10,38 @@ const { User } = require('../../../models/user');
 // desc     register new user
 // access   PUBLIC
 
-const register = (req, res) => {
+const register = async (req, res) => {
+    const { isValid, errors} = await validateRegisterInput(req.body);
+    if(!isValid) return res.status(400).json(errors);
+
     const { email, password, fullName, userType, phone, dateOfBirth } = req.body;
+    
 
-    // gia dinh input valid
-    User.findOne({ $or: [{ email, phone }] })
-        .then(user => {
-            if(user) return Promise.reject({errors: 'Email or Phone exists'})
-            
-            const newUser = new User({
-                email, password, fullName, userType, phone, dateOfBirth
-            });
+    const newUser = new User({
+        email, password, fullName, userType, phone, dateOfBirth
+    });
 
-            bcrypt.genSalt(10, (err, salt) => {
-                if (err) return Promise.reject(err);
+    bcrypt.genSalt(10, (err, salt) => {
+        if (err) return Promise.reject(err);
 
-                bcrypt.hash(password, salt, (err, hash) => {
-                    if (err) return Promise.reject(err);
+        bcrypt.hash(password, salt, (err, hash) => {
+            if (err) return Promise.reject(err);
 
-                    newUser.password = hash;
-                    return newUser.save()
-                        .then((user) => { res.status(200).json(user) })
-                        .catch((err) => { res.status(400).json(err) });
-                })
-
-            });
+            newUser.password = hash;
+            return newUser.save()
+                .then((user) => { res.status(200).json(user) })
+                .catch((err) => { res.status(400).json(err) });
         })
-        .catch((err) => { res.status(400).json(err) })
+
+    });
+    // gia dinh input valid
+    // User.findOne({ $or: [{ email, phone }] })
+    //     .then(user => {
+    //         if(user) return Promise.reject({errors: 'Email or Phone exists'})
+            
+
+    //     })
+    //     .catch((err) => { res.status(400).json(err) })
 }
 
 

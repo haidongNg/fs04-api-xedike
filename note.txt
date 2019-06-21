@@ -1,4 +1,4 @@
-
+"client": "npm start --prefix client"
 
 auth 
 + Authencation: 
