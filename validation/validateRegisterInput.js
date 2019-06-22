@@ -32,12 +32,12 @@ validateResgisterInput = async (data) => {
     }
 
     // password
-    if (validator.isEmpty(data.password)) errors.password = 'Password is required';
-    else if (validator.isLength(data.password, { min: 6 })) errors.password = 'Password has is least 6 characters';
+    // if (validator.isEmpty(data.password)) errors.password = 'Password is required';
+    // else if (validator.isLength(data.password, { min: 6 })) errors.password = 'Password has is least 6 characters';
 
     // password2
-    if (validator.isEmpty(data.password2)) errors.password2 = 'Password is required';
-    else if (validator.equals(data.password, data.password2)) errors.password2 = 'Password is not match';
+    // if (validator.isEmpty(data.password2)) errors.password2 = 'Password is required';
+    // else if (validator.equals(data.password, data.password2)) errors.password2 = 'Password is not match';
 
 
     if (validator.isEmpty(data.phone)) errors.phone = 'Phone is required';

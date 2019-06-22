@@ -110,13 +110,19 @@ const deleteTrip = async (req, res, next) => {
 
 const updateTrip = async (req, res, next) => {
     const {tripId} = req.params;
-    await Trip.findByIdAndUpdate(tripId, {$set: req.body},(err, trip) => {
-        if(err) return res.status(400).json(err);
-        console.log(trip);
-        res.status(200).json({message: 'success'})
+    await Trip.findByIdAndUpdate(tripId, req.body, {new: true}, (err, trip) => {
+        if(err) {
+            console.log(err)
+            return res.status(400).json(err)
+        };
+        res.status(200).json({message: 'success', trip});
     });
-
 }
+
+
+// route    PUT /api/trip/:tripId
+// desc     update trip 
+// access   PRIVATE Driver dang nhap moi co quyen access
 
 module.exports = {
     createTrip,

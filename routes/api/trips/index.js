@@ -4,6 +4,7 @@ const tripController = require('./trips');
 
 const router = express.Router();
 
+// trip
 router.get('/:tripId', tripController.getTrip);
 
 router.get('/', tripController.getAllTrip);
@@ -21,8 +22,10 @@ router.post('/create-trip',
     authenticating, authorizing(['driver']),
     tripController.createTrip);
 
+// book-trip
 router.post('/book-trip/:tripId',
     authenticating, authorizing(['passenger']),
     tripController.bookTrip);
+
 
 module.exports = router;
