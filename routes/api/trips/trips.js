@@ -1,7 +1,7 @@
 const { Trip } = require('../../../models/trips');
 const { User } = require('../../../models/user');
 
-
+//create trip
 const createTrip = (req, res, next) => {
     // const { locationFrom, locationTo, startTime, availableSeats, free} = req.body;
     const driverId = req.user.id;
@@ -36,6 +36,8 @@ const createTrip = (req, res, next) => {
 // }
 
 // Promise all
+
+// Update thong tin chuyen di
 const bookTrip = (req, res, next) => {
     const { tripId } = req.params; // id trip
     const { numberOfBookingSeats } = req.body;
@@ -60,7 +62,67 @@ const bookTrip = (req, res, next) => {
         .then(trip => res.status(200).json(trip))
         .catch(err => res.status(400).json(err))
 }
+
+
+
+// route    GET /api/trips
+// desc     lay danh sach trip
+// access   PUBLIC
+
+const getAllTrip = async (req, res, next) => {
+    const allTrip = await Trip.find();
+    if(!allTrip) return res.status(400).json({error: 'Not found'});
+    res.status(200).json(allTrip);
+}
+
+
+// route    GET /api/trip/:tripId
+// desc     lay 1 trip
+// access   PUBLIC
+
+const getTrip = async (req, res, next) => {
+    const {tripId} = req.params;
+    const trip = await Trip.findById(tripId);
+
+    if(!trip) return res.status(400).json({error: 'Not found'});
+
+    res.status(200).json(trip);
+}
+
+
+
+// route    DELETE /api/trip/:tripId
+// desc     delete trip 
+// access   PRIVATE Driver dang nhap moi co quyen access
+
+const deleteTrip = async (req, res, next) => {
+    const { tripId} = req.params;
+    await Trip.findByIdAndDelete(tripId, (err, trip) => {
+        if(err) return res.status(400).json(err);
+        res.status(200).json({message: 'success'});
+    });    
+}
+
+// route    PUT /api/trip/:tripId
+// desc     update trip 
+// access   PRIVATE Driver dang nhap moi co quyen access
+
+
+const updateTrip = async (req, res, next) => {
+    const {tripId} = req.params;
+    await Trip.findByIdAndUpdate(tripId, {$set: req.body},(err, trip) => {
+        if(err) return res.status(400).json(err);
+        console.log(trip);
+        res.status(200).json({message: 'success'})
+    });
+
+}
+
 module.exports = {
     createTrip,
-    bookTrip
+    bookTrip,
+    getAllTrip,
+    getTrip,
+    deleteTrip,
+    updateTrip
 }

@@ -158,10 +158,10 @@ const updateUser = async (req, res, next) => {
 
 const deleteUser = async (req, res, next) => {
     const {id} = req.user;
-    const newUser = await User.findById(id);
-    if(!newUser) return res.status(400).json({errors: 'User not found'});
-    await newUser.remove();
-    res.status(200).json({message: 'success'});
+    await User.findByIdAndDelete(id, (err, user) => {
+        if(err) return res.status(400).json(err);
+        res.status(200).json({message: 'success'});
+    });
 }
 
 module.exports = {
