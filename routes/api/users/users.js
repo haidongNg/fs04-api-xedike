@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const validateRegisterInput = require('../../../validation/validateRegisterInput');
+const validateLoginInput = require('../../../validation/validateLoginInput')
 const { User } = require('../../../models/user');
 
 // const router = express.Router();
@@ -46,34 +47,58 @@ const register = async (req, res) => {
 // desc     login
 // access   PUBLIC
 
-const login = (req, res) => {
+const login = async (req, res) => {
+    const {isValid, errors} = await validateLoginInput(req.body);
+    if(!isValid) return res.status(400).json(errors);
     const { email, password } = req.body;
 
-    User.findOne({ email })
-        .then(user => {
-            if (!user) return Promise.reject({ errors: 'User does not exst' });
+    const user  = await User.findOne({email});
+    if(!user) return res.status(400).json({error: 'User does not exsits'});
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+        if (!isMatch) return res.status(400).json({ errors: 'Wrong password' });
 
-            bcrypt.compare(password, user.password, (err, isMatch) => {
-                if (!isMatch) return res.status(400).json({ errors: 'Wrong password' });
+        const payload = {
+            id: user._id,
+            email: user.email,
+            fullName: user.fullName,
+            userType: user.userType
+        }
+        jwt.sign(payload, 'Cybersoft', { expiresIn: '1h' }, (err, token) => {
+            if (err) return res.status(400).json(err);
 
-                const payload = {
-                    id: user._id,
-                    email: user.email,
-                    fullName: user.fullName,
-                    userType: user.userType
-                }
-                jwt.sign(payload, 'Cybersoft', { expiresIn: '1h' }, (err, token) => {
-                    if (err) return res.status(400).json(err);
-
-                    res.status(200).json({
-                        message: 'success',
-                        token
-                    })
-                });
-
+            res.status(200).json({
+                message: 'success',
+                token
             })
-        })
-        .catch(err => res.status(400).json(err))
+        });
+
+    })
+
+    // User.findOne({ email })
+    //     .then(user => {
+    //         if (!user) return Promise.reject({ errors: 'User does not exsits' });
+
+    //         bcrypt.compare(password, user.password, (err, isMatch) => {
+    //             if (!isMatch) return res.status(400).json({ errors: 'Wrong password' });
+
+    //             const payload = {
+    //                 id: user._id,
+    //                 email: user.email,
+    //                 fullName: user.fullName,
+    //                 userType: user.userType
+    //             }
+    //             jwt.sign(payload, 'Cybersoft', { expiresIn: '1h' }, (err, token) => {
+    //                 if (err) return res.status(400).json(err);
+
+    //                 res.status(200).json({
+    //                     message: 'success',
+    //                     token
+    //                 })
+    //             });
+
+    //         })
+    //     })
+    //     .catch(err => res.status(400).json(err))
 }
 
 
