@@ -55,7 +55,6 @@ const login = (req, res) => {
     User.findOne({ email })
         .then(user => {
             if (!user) return Promise.reject({ errors: 'User does not exst' });
-
             bcrypt.compare(password, user.password, (err, isMatch) => {
                 if (!isMatch) return res.status(400).json({ errors: 'Wrong password' });
 
@@ -69,7 +68,7 @@ const login = (req, res) => {
                     if (err) return res.status(400).json(err);
 
                     res.status(200).json({
-                        message: 'success',
+                        success: true,
                         token: 'Bearer ' + token
                     })
                 });
@@ -86,7 +85,7 @@ const login = (req, res) => {
  */
 
 const test_private = (req, res, next) => {
-    res.status(200).json({ message: 'Ban da thay duoc dieu bi mat' })
+    res.status(200).json(res.user)
 }
 
 // router.get('/test-private', authenticating, authorizing(['passenger']), (req, res) => {

@@ -27,11 +27,11 @@ router.post('/login', userController.login);
 
 router.get('/test-private',
     passport.authenticate('jwt', {session: false}),
-    authorizing(['passenger']),
+    //authorizing(['admin']),
     userController.test_private);
 
 router.post('/upload-avatar',
-    authenticating,
+    passport.authenticate('jwt', {session: false}),
     upload.single('avatar'), userController.uploadAvatar);
 
 

@@ -30,6 +30,8 @@ app.use(express.urlencoded({ extended: true }));
 // Middleware: passport
 app.use(passport.initialize());
 require('./config/passport')(passport);
+
+
 // static
 app.use('/uploads', express.static('uploads'));
 
