@@ -55,5 +55,7 @@ git clone
 
 git pull -u origin master
 git fetch
-
+git merge --abort // gặp phải xung đột khi pull
+git merge remotename/branchname // hợp nhất 2 nhánh
+git fetch remotename // Sử dụng git fetchđể lấy công việc mới được thực hiện bởi những người khác
 git remote remove origin

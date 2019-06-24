@@ -22,7 +22,6 @@ validateLoginInput = async (data) => {
     else if (!validator.isLength(data.password, { min: 6 })) errors = 'Password has is least 6 characters';
 
 
-
     return {
         isValid: _.isEmpty(errors), // neu la true thi errors {} nguoc lai errors {.....}
         errors

@@ -66,7 +66,7 @@ const login = async (req, res) => {
         jwt.sign(payload, 'Cybersoft', { expiresIn: '1h' }, (err, token) => {
             if (err) return res.status(400).json(err);
 
-            res.status(200).json({
+            return res.status(200).json({
                 message: 'success',
                 token
             })
@@ -90,7 +90,7 @@ const login = async (req, res) => {
     //             jwt.sign(payload, 'Cybersoft', { expiresIn: '1h' }, (err, token) => {
     //                 if (err) return res.status(400).json(err);
 
-    //                 res.status(200).json({
+    //                return res.status(200).json({
     //                     message: 'success',
     //                     token
     //                 })

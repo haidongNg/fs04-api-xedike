@@ -12,7 +12,7 @@ const authenticating = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
-        res.status(401).json({ errors: 'Ban khong the xem' })
+        res.status(403).json({ errors: 'Ban khong the xem' })
     }
 
 }
@@ -20,6 +20,7 @@ const authenticating = (req, res, next) => {
 // User: passenger, driver, admin
 const authorizing = (userTypeArray) => {
     return (req, res, next) => {
+        console.log(req.user)
         const { userType } = req.user;
         console.log("TCL: authorizing -> userType", userType)
         // userTypeArray: danh sach cac loai nguoi dung co the truy cap

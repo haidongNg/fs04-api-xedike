@@ -27,7 +27,7 @@ router.post('/login', userController.login);
 
 router.get('/test-private',
     authenticating,
-    authorizing(['passenger', 'admin']),
+    authorizing(['passenger']),
     userController.test_private);
 
 router.post('/upload-avatar',

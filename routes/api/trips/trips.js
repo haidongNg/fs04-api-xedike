@@ -54,7 +54,7 @@ const bookTrip = (req, res, next) => {
             if (!passenger) return Promise.reject({ errors: 'passenger not found' });
             if (!trip) return Promise.reject({ errors: 'trip not found' });
             if (numberOfBookingSeats > trip.availableSeats) return Promise.reject({ errors: 'Your booking is over limitation' })
-
+            
             trip.availableSeats -= numberOfBookingSeats;
             trip.passengerIDs.push(passengerId);
             return trip.save();
@@ -120,9 +120,28 @@ const updateTrip = async (req, res, next) => {
 }
 
 
-// route    PUT /api/trip/:tripId
-// desc     update trip 
-// access   PRIVATE Driver dang nhap moi co quyen access
+// route    POST /api/trip/cancel/:tripId
+// desc     huy 1 chuyen di 
+// access   PRIVATE Passenger dang nhap moi co quyen access
+
+const cancelBookTrip = async (req, res, next) => {
+    const { tripId } = req.params;
+    const { numberOfBookingSeats } = req.body;
+    const passengerId = req.user.id;
+    console.log(passengerId)
+    const user = await User.findById(passengerId);
+    const trip = await Trip.findById(tripId);
+
+    if(!user) return res.status(400).json({error: 'User not found'});
+    if(!trip) return res.status(400).json({error: 'Trip not found'});
+    
+    trip.availableSeats += Number(numberOfBookingSeats);
+    const index = await trip.passengerIDs.findIndex(i => i === passengerId);
+    if(index) return res.status(400).json({error: 'User not found PassengerIDs'});
+    trip.passengerIDs.splice(index, 1);
+    trip.save();
+    return res.status(200).json(trip);
+}
 
 module.exports = {
     createTrip,
@@ -130,5 +149,6 @@ module.exports = {
     getAllTrip,
     getTrip,
     deleteTrip,
-    updateTrip
+    updateTrip,
+    cancelBookTrip,
 }

@@ -27,5 +27,9 @@ router.post('/book-trip/:tripId',
     authenticating, authorizing(['passenger']),
     tripController.bookTrip);
 
+router.post('/cancel/:tripId',
+    authenticating,
+    authorizing(['passenger']),
+    tripController.cancelBookTrip)
 
 module.exports = router;
