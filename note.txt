@@ -1,9 +1,19 @@
+proxy server 
+file setupproxy
+
 "client": "npm start --prefix client"
 
 auth 
 + Authencation: 
 + Authorization: phan quyen
 
+lay token       luu token
+                decode - token - redux store
+Authencation
+    gan toke vao header 
+    calc fingerpring header
+
+=============
 logout 
 +logout
 +currentTime > exp
