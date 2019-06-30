@@ -1,5 +1,6 @@
 const express = require('express');
-const bcrypt = require('bcryptjs');
+// const bcrypt = require('bcryptjs');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const validateRegisterInput = require('../../../validation/validateRegisterInput');
 const validateLoginInput = require('../../../validation/validateLoginInput')
@@ -50,7 +51,7 @@ const register = async (req, res) => {
 const login = async (req, res) => {
     const {isValid, errors} = await validateLoginInput(req.body);
     if(!isValid) return res.status(400).json(errors);
-    const { email, password } = req.body;
+    const { email, password, fingerprint } = req.body;
 
     const user  = await User.findOne({email});
     if(!user) return res.status(400).json({error: 'User does not exsits'});
@@ -63,11 +64,13 @@ const login = async (req, res) => {
             fullName: user.fullName,
             userType: user.userType
         }
-        jwt.sign(payload, 'Cybersoft', { expiresIn: '1h' }, (err, token) => {
+        const KEY = 'Cybersoft' + fingerprint;
+        jwt.sign(payload, KEY, { expiresIn: '1h' }, (err, token) => {
             if (err) return res.status(400).json(err);
 
             return res.status(200).json({
                 message: 'success',
+                // token: 'Bearer ' + token
                 token
             })
         });

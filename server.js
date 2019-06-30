@@ -1,14 +1,18 @@
 // 3rd packages
 const express = require('express');
 const mongoose = require('mongoose');
+const passport = require('passport');
 const app = express();
 
 // my packages
 
-
+// mongodb+srv://adminxedike:xedike_1412@xedike-wtjxz.azure.mongodb.net/xedike
 mongoose.connect('mongodb://localhost:27017/xedike', { useNewUrlParser: true, useCreateIndex: true })
     .then(() => console.log('Connected to DB'))
     .catch((err) => console.log(err));
+// mongoose.connect('mongodb://localhost:27017/xedike', { useNewUrlParser: true, useCreateIndex: true })
+//     .then(() => console.log('Connected to DB'))
+//     .catch((err) => console.log(err));
 
 // Middleware
 // app.get('/', (rep, res, next) => {
@@ -22,9 +26,6 @@ mongoose.connect('mongodb://localhost:27017/xedike', { useNewUrlParser: true, us
 //     // res.send('Hello world');
 // })
 
-// parser middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -32,6 +33,18 @@ app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
+
+// parser middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
+
+// Middleware: passport
+app.use(passport.initialize());
+require('./config/passport')(passport);
+
+
 
 // static
 app.use('/uploads', express.static('uploads'));

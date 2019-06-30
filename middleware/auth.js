@@ -6,13 +6,15 @@ const authenticating = (req, res, next) => {
     //     -   that bai: res.json(err);
 
     const token = req.header('Authorization');
+    const fingerprint = req.header('fingerprint');
+    const KEY = 'Cybersoft' + fingerprint;
     try {
-        const decoded = jwt.verify(token, 'Cybersoft');
+        const decoded = jwt.verify(token, KEY);
         console.log('TCl: authenticating', decoded);
         req.user = decoded;
         next();
     } catch (error) {
-        res.status(403).json({ errors: 'Ban khong the xem' })
+        res.status(403).json({ errors: 'Ban khong the xem. Token or fingerprint khonh hop le' })
     }
 
 }

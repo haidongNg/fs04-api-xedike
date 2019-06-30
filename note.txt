@@ -1,3 +1,9 @@
+login => email, password => credental
+    |
+    | req.body + fingerprint
+    |
+    |server  => token jwt + secrtkey
+
 proxy server 
 file setupproxy
 
