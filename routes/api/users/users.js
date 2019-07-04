@@ -180,7 +180,7 @@ const updateUser = async (req, res, next) => {
   const { id } = req.user;
   await User.findByIdAndUpdate(id, req.body, { new: true }, (err, user) => {
     if (err) return res.status(400).json(err);
-    res.status(200).json({ message: "success", user });
+    res.status(200).json({ message: "success"});
   });
 
   res.status(200).json({ message: "success", userUp });
@@ -197,7 +197,7 @@ const deleteUser = async (req, res, next) => {
   const { id } = req.user;
   await User.findByIdAndDelete(id, (err, user) => {
     if (err) return res.status(400).json(err);
-    res.status(200).json({ message: "success", user });
+    res.status(200).json({ message: "success"});
   });
 };
 
