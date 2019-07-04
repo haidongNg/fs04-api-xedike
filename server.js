@@ -8,7 +8,7 @@ const app = express();
 
 // mongodb+srv://xedikedb:IssVsBr6nFHnssDg@xedike-api-wtcsu.azure.mongodb.net/test?retryWrites=true&w=majority
 mongoose
-  .connect("mongodb://localhost:27017/xedike", {
+  .connect("mongodb+srv://adminfso4:dong@@..@cluster0-arkcd.azure.mongodb.net/test?retryWrites=true&w=majority", {
     useNewUrlParser: true,
     useCreateIndex: true
   })
