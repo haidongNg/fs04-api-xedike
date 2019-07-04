@@ -7,10 +7,10 @@ const authenticating = (req, res, next) => {
 
   const token = req.header("Authorization");
   const fingerprint = req.header("fingerprint");
-  const KEY = "Cybersoft" + fingerprint;
+  const KEY = process.env.SECRET_KEY + fingerprint;
   try {
     const decoded = jwt.verify(token, KEY);
-    console.log("TCl: authenticating", decoded);
+    // console.log("TCl: authenticating", decoded);
     req.user = decoded;
     next();
   } catch (error) {

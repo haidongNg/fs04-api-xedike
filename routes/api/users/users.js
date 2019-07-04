@@ -76,7 +76,7 @@ const login = async (req, res) => {
       fullName: user.fullName,
       userType: user.userType
     };
-    const KEY = "Cybersoft" + fingerprint;
+    const KEY = process.env.SECRET_KEY + fingerprint;
     jwt.sign(payload, KEY, { expiresIn: "1h" }, (err, token) => {
       if (err) return res.status(400).json(err);
 
