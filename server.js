@@ -6,9 +6,17 @@ const app = express();
 require('dotenv').config();
 // my packages
 
+let mongoUrl = '';
+if(process.env.STAGE === 'development'){
+  mongoUrl = process.env.MONGO_URL_DEV;
+} else if(process.env.STAGE === 'production') {
+  mongoUrl = process.env.MONGO_URL_PROD;
+}
+// linux export=development
+// window SET=development
 // mongodb+srv://xedikedb:IssVsBr6nFHnssDg@xedike-api-wtcsu.azure.mongodb.net/test?retryWrites=true&w=majority
 mongoose
-  .connect(process.env.MONGO_URL, {
+  .connect(mongoUrl, {
     useNewUrlParser: true,
     useCreateIndex: true
   })
