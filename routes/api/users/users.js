@@ -186,6 +186,13 @@ const updateUser = async (req, res, next) => {
   res.status(200).json({ message: "success", userUp });
 };
 
+const getUserById = (req, res, next) => {
+  const {id} = req.user;
+  User.findById(id, {password: 0})
+    .then((user) => res.status(200).json(user))
+    .catch(err => res.status(400).json(err)) 
+}
+
 const deleteUser = async (req, res, next) => {
   const { id } = req.user;
   await User.findByIdAndDelete(id, (err, user) => {
@@ -202,5 +209,6 @@ module.exports = {
   getAllUser,
   getUserId,
   updateUser,
-  deleteUser
+  deleteUser,
+  getUserById
 };

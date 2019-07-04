@@ -16,9 +16,9 @@ router.get(
   userController.test_private
 );
 
-router.get("/:userId", userController.getUserId);
+// router.get("/:userId", userController.getUserId);
 
-router.get("/", userController.getAllUser);
+// router.get("/", userController.getAllUser);
 
 router.delete("/delete", authenticating, userController.deleteUser);
 
@@ -30,5 +30,7 @@ router.post(
   upload.single("avatar"),
   userController.uploadAvatar
 );
+
+router.get('/:id', authenticating, userController.getUserById)
 
 module.exports = router;
