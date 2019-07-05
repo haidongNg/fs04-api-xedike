@@ -16,7 +16,7 @@ if(process.env.STAGE === 'development'){
 // window SET=development
 // mongodb+srv://xedikedb:IssVsBr6nFHnssDg@xedike-api-wtcsu.azure.mongodb.net/test?retryWrites=true&w=majority
 mongoose
-  .connect(moongoUrl.toString(), {
+  .connect(moongoUrl, {
     useNewUrlParser: true,
     useCreateIndex: true
   })
