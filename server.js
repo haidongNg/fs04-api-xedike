@@ -6,17 +6,17 @@ const app = express();
 require('dotenv').config();
 // my packages
 
-let mongoUrl = '';
+let moongoUrl = '';
 if(process.env.STAGE === 'development'){
-  mongoUrl = process.env.MONGO_URL_DEV;
+  moongoUrl = process.env.MONGO_URL_DEV;
 } else if(process.env.STAGE === 'production') {
-  mongoUrl = process.env.MONGO_URL_PROD;
+  moongoUrl = process.env.MONGO_URL_PROD;
 }
 // linux export=development
 // window SET=development
 // mongodb+srv://xedikedb:IssVsBr6nFHnssDg@xedike-api-wtcsu.azure.mongodb.net/test?retryWrites=true&w=majority
 mongoose
-  .connect(mongoUrl, {
+  .connect(moongoUrl.toString(), {
     useNewUrlParser: true,
     useCreateIndex: true
   })
