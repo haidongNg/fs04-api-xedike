@@ -11,7 +11,7 @@ const { User } = require("../../../models/user");
 // access   PUBLIC
 
 const register = async (req, res) => {
-  const { isValid, errors } = await validateInput(req.body, 'register');
+  const { isValid, errors } = await validateInput(req.body, "register");
   if (!isValid) return res.status(400).json(errors);
   const { email, password, fullName, userType, phone, dateOfBirth } = req.body;
 
@@ -61,12 +61,12 @@ const login = async (req, res) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    errors.email = 'User does not exsits'
+    errors.email = "User does not exsits";
     return res.status(400).json(errors);
   }
   bcrypt.compare(password, user.password, (err, isMatch) => {
     if (!isMatch) {
-      errors.password = 'Password wrong'
+      errors.password = "Password wrong";
       return res.status(400).json(errors);
     }
 
@@ -156,20 +156,11 @@ const getAllUser = async (req, res, next) => {
 // route    GET /api/users/:userId
 // desc     get user
 // access   PUBLIC (Tat ca nguoi dung deu co the access)
-
-const getUserId = async (req, res, next) => {
-  const { userId } = req.params;
-  // User.findById(userId)
-  //     .then(user => {
-  //         if(!user) return Promise.reject({errors: 'User not found'});
-  //         res.status(200).json(user);
-  //     })
-  //     .catch(err => res.status(400).json(err))
-  console.log(userId);
-  const user = await User.findById(userId);
-  if (!user) return res.status(400).json({ errors: "User not found" });
-
-  res.status(200).json(user);
+const getUserById = (req, res, next) => {
+  const { id } = req.user;
+  User.findById(id, { password: 0 })
+    .then(user => res.status(200).json(user))
+    .catch(err => res.status(400).json(err));
 };
 
 // route    PUT /api/users/:userId
@@ -178,26 +169,29 @@ const getUserId = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   const { id } = req.user;
-  await User.findByIdAndUpdate(id, req.body, { new: true }, (err, user) => {
-    if (err) return res.status(400).json(err);
-    res.status(200).json({ message: "success"});
-  });
+  const { fullName, dateOfBirth, phone } = req.body;
+  const user = await User.findById(id);
+  if (!user) return res.status(400).json({ errors: "User does not exists" });
 
-  res.status(200).json({ message: "success", userUp });
+  user.fullName = fullName;
+  user.dateOfBirth = dateOfBirth;
+  user.phone = phone;
+
+  await user
+    .save()
+    .then(u => {
+      res.status(200).json({ message: "update successfully" });
+    })
+    .catch(err => {
+      res.status(400).json(err);
+    });
 };
-
-const getUserById = (req, res, next) => {
-  const {id} = req.user;
-  User.findById(id, {password: 0})
-    .then((user) => res.status(200).json(user))
-    .catch(err => res.status(400).json(err)) 
-}
 
 const deleteUser = async (req, res, next) => {
   const { id } = req.user;
   await User.findByIdAndDelete(id, (err, user) => {
     if (err) return res.status(400).json(err);
-    res.status(200).json({ message: "success"});
+    res.status(200).json({ message: "Delete successfully" });
   });
 };
 
@@ -207,7 +201,6 @@ module.exports = {
   test_private,
   uploadAvatar,
   getAllUser,
-  getUserId,
   updateUser,
   deleteUser,
   getUserById

@@ -16,8 +16,6 @@ router.get(
   userController.test_private
 );
 
-// router.get("/:userId", userController.getUserId);
-
 // router.get("/", userController.getAllUser);
 
 router.delete("/delete", authenticating, userController.deleteUser);
