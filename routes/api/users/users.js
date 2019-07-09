@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const validateInput = require("../../../validation/validate-input");
 const { User } = require("../../../models/user");
+const { Driver } = require("../../../models/driver");
 
 // const router = express.Router();
 
@@ -11,7 +12,7 @@ const { User } = require("../../../models/user");
 // access   PUBLIC
 
 const register = async (req, res) => {
-  const { isValid, errors } = await validateInput(req.body, 'register');
+  const { isValid, errors } = await validateInput(req.body, "register");
   if (!isValid) return res.status(400).json(errors);
   const { email, password, fullName, userType, phone, dateOfBirth } = req.body;
 
@@ -61,12 +62,12 @@ const login = async (req, res) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    errors.email = 'User does not exsits'
+    errors.email = "User does not exsits";
     return res.status(400).json(errors);
   }
   bcrypt.compare(password, user.password, (err, isMatch) => {
     if (!isMatch) {
-      errors.password = 'Password wrong'
+      errors.password = "Password wrong";
       return res.status(400).json(errors);
     }
 
@@ -178,26 +179,79 @@ const getUserId = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   const { id } = req.user;
-  await User.findByIdAndUpdate(id, req.body, { new: true }, (err, user) => {
-    if (err) return res.status(400).json(err);
-    res.status(200).json({ message: "success"});
-  });
-
-  res.status(200).json({ message: "success", userUp });
+  const user = await User.findById(id);
+  if (!id) return res.status(400).json({ error: "User does not exist" });
+  const { fullName } = req.body;
+  if (!fullName) return res.status(400).json({ error: "Error form" });
+  user.fullName = fullName;
+  const newUser = await user.save();
+  if (!newUser) return res.status(400).json({ error: "User update failed" });
+  res.status(200).json({ message: "Update users successfully" });
 };
 
+// route    GET /api/users/:userId
+// desc     get user
+// access   PUBLIC (Tat ca nguoi dung deu co the access)
 const getUserById = (req, res, next) => {
-  const {id} = req.user;
-  User.findById(id, {password: 0})
-    .then((user) => res.status(200).json(user))
-    .catch(err => res.status(400).json(err)) 
-}
+  const { id } = req.user;
+  User.findById(id, { password: 0 })
+    .then(user => {
+      if (!user) return res.status(400).json({ error: "User does not exist" });
+      res.status(200).json(user);
+    })
+    .catch(err => res.status(400).json(err));
+};
 
+
+// route    DELETE /api/users/:userId
+// desc     get user
+// access   PUBLIC (Tat ca nguoi dung deu co the access)
 const deleteUser = async (req, res, next) => {
   const { id } = req.user;
   await User.findByIdAndDelete(id, (err, user) => {
     if (err) return res.status(400).json(err);
-    res.status(200).json({ message: "success"});
+    res.status(200).json({ message: "Delete successfullys   " });
+  });
+};
+
+const rateDriver = async (req, res, next) => {
+  const driverId = req.params.driverId;
+  const driver = await Driver.findOne({ userId: driverId });
+  if (!driver) return res.status(400).json({ error: "Driver does not exist" });
+
+  const { raiting } = req.body;
+  await driver.passengerRates.push(raiting);
+  await driver
+    .save()
+    .then(dri => {
+      res.status(200).json({ message: "Raiting successfully" });
+    })
+    .catch(err => res.status(400).json(err));
+};
+
+const changePassword = async (req, res, next) => {
+  const userId = req.user.id;
+  const user = await User.findById(userId);
+  if (!user) return res.status(400).json({ error: "User does not exist" });
+  const { oldPassword, newPassword } = req.body;
+  // lay oldpassword la yeu cau nhap password cu  dem so sanh voi password hasing luu ten database
+  // neu dung thi newpassword cap nhap lai cho user
+  // hashing password luu tren db
+  bcrypt.compare(oldPassword, user.password).then(isMatch => {
+    if (!isMatch) return res.status(400).json({ error: "Wrong password" });
+    user.password = newPassword;
+
+    bcrypt.genSalt(10, (err, salt) => {
+      if (err) return res.status(400).json(err);
+      bcrypt.hash(user.password, salt, (err, hash) => {
+        if (err) return res.status(400).json(err);
+        user.password = hash;
+
+        user.save().then(u => {
+          res.status(200).json({ message: "Change password successfully" });
+        });
+      });
+    });
   });
 };
 
@@ -210,5 +264,7 @@ module.exports = {
   getUserId,
   updateUser,
   deleteUser,
-  getUserById
+  getUserById,
+  rateDriver,
+  changePassword,
 };

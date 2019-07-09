@@ -1,4 +1,4 @@
-const { Trip } = require("../../../models/trips");
+const { Trip } = require("../../../models/trip");
 const { User } = require("../../../models/user");
 
 //create trip
