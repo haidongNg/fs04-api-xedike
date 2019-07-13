@@ -1,5 +1,6 @@
-const { Trip } = require("../../../models/trips");
+const { Trip } = require("../../../models/trip");
 const { User } = require("../../../models/user");
+const { Driver } = require("../../../models/driver");
 
 //create trip
 const createTrip = (req, res, next) => {
@@ -17,49 +18,66 @@ const createTrip = (req, res, next) => {
 };
 
 // Async/await
-// const bookTrip = async (req, res, next) => {
-//     const {tripId} = req.params; // id trip
-//     const {numberOfBookinhSeats} = req.body;
-//     console.log(tripId)
-//     const passengerId = req.user.id;
-//     const passenger = await User.findById(passengerId);
-//     const trip = await Trip.findById(tripId);
+const bookTrip = async (req, res, next) => {
+  const { tripId } = req.params; // id trip
+  const {
+    locationGetIn,
+    locationGetOff,
+    paymentMethod,
+    numberOfBookingSeats,
+    notes
+  } = req.body;
+  console.log(tripId);
+  const passengerId = req.user.id;
+  const passenger = await User.findById(passengerId);
+  const trip = await Trip.findById(tripId);
 
-//     if(!passenger) return res.status(400).json({errors: 'passenger not found'});
-//     if(!trip) return res.status(400).json({errors: 'trip not found'});
-//     if(numberOfBookinhSeats > trip.availableSeats) return res.status(400).json({errors: 'Your book'})
+  if (!passenger)
+    return res.status(400).json({ errors: "passenger not found" });
+  if (!trip) return res.status(400).json({ errors: "trip not found" });
+  if (numberOfBookingSeats > trip.availableSeats)
+    return res.status(400).json({ errors: "Your book" });
 
-//     trip.availableSeats -= numberOfBookinhSeats;
-//     trip.passengerIDs.push(passengerId);
-//     const savedTrip = await trip.save();
-//     res.status(200).json(savedTrip)
-// }
+  trip.availableSeats -= numberOfBookingSeats;
+  const newTripPassenger = {
+    passengerId,
+    locationGetIn,
+    locationGetOff,
+    paymentMethod,
+    numberOfBookingSeats,
+    notes
+  };
+  trip.passengers = [...trip.passengers, newTripPassenger];
+  // trip.passengerIDs.push(passengerId);
+  const savedTrip = await trip.save();
+  res.status(200).json(savedTrip);
+};
 
 // Promise all
 
 // Update thong tin chuyen di
-const bookTrip = (req, res, next) => {
-  const { tripId } = req.params; // id trip
-  const { numberOfBookingSeats } = req.body;
-  const passengerId = req.user.id;
+// const bookTrip = (req, res, next) => {
+//   const { tripId } = req.params; // id trip
+//   const { numberOfBookingSeats } = req.body;
+//   const passengerId = req.user.id;
 
-  Promise.all([User.findById(passengerId), Trip.findById(tripId)])
-    .then(results => {
-      const passenger = results[0];
-      const trip = results[1];
+//   Promise.all([User.findById(passengerId), Trip.findById(tripId)])
+//     .then(results => {
+//       const passenger = results[0];
+//       const trip = results[1];
 
-      if (!passenger) return Promise.reject({ errors: "passenger not found" });
-      if (!trip) return Promise.reject({ errors: "trip not found" });
-      if (numberOfBookingSeats > trip.availableSeats)
-        return Promise.reject({ errors: "Your booking is over limitation" });
+//       if (!passenger) return Promise.reject({ errors: "passenger not found" });
+//       if (!trip) return Promise.reject({ errors: "trip not found" });
+//       if (numberOfBookingSeats > trip.availableSeats)
+//         return Promise.reject({ errors: "Your booking is over limitation" });
 
-      trip.availableSeats -= numberOfBookingSeats;
-      trip.passengerIDs.push(passengerId);
-      return trip.save();
-    })
-    .then(trip => res.status(200).json(trip))
-    .catch(err => res.status(400).json(err));
-};
+//       trip.availableSeats -= numberOfBookingSeats;
+//       trip.passengerIDs.push(passengerId);
+//       return trip.save();
+//     })
+//     .then(trip => res.status(200).json(trip))
+//     .catch(err => res.status(400).json(err));
+// };
 
 // route    GET /api/trips
 // desc     lay danh sach trip
@@ -117,7 +135,6 @@ const updateTrip = async (req, res, next) => {
 
 const cancelBookTrip = async (req, res, next) => {
   const { tripId } = req.params;
-  const { numberOfBookingSeats } = req.body;
   const passengerId = req.user.id;
   console.log(passengerId);
   const user = await User.findById(passengerId);
@@ -126,15 +143,49 @@ const cancelBookTrip = async (req, res, next) => {
   if (!user) return res.status(400).json({ error: "User not found" });
   if (!trip) return res.status(400).json({ error: "Trip not found" });
 
+  if (numberOfBookingSeats > trip.numberOfBookingSeats)
+    return res.status(400).json("Number of booking trip not found");
   trip.availableSeats += Number(numberOfBookingSeats);
-  const index = await trip.passengerIDs.findIndex(i => i === passengerId);
+  const index = await trip.passengers.findIndex(
+    i => i.passengerId === passengerId
+  );
+  console.log(index);
   if (index)
     return res.status(400).json({ error: "User not found PassengerIDs" });
-  trip.passengerIDs.splice(index, 1);
-  trip.save();
+  await trip.passengers.splice(index, 1);
+  await trip.save();
   return res.status(200).json(trip);
 };
 
+// route    POST /api/trip/finish/:tripId
+// desc      Driver kết thúc một chuyến đi
+// access   PRIVATE: chỉ có userType=driver + đang đăng nhập mới được access
+
+const finishTheTrip = async (req, res, next) => {
+  const { tripId } = req.params;
+  const trip = await Trip.findById(tripId);
+  if (!trip) return res.status(400).json({ error: "Trip does not exists" });
+  trip.isFinished = true;
+  await trip.save();
+  res.status(200).json({ message: "Finish the trip" });
+};
+
+// route    POST /api/trips/rates/:tripId
+// desc     user (passenger) đánh giá về tài xế
+// access   PRIVATE: chỉ có userType=passenger + đang đăng nhập mới được access
+
+const ratesTrip = async (req, res, next) => {
+  const { tripId } = req.params;
+  const { passengerRates } = req.body;
+  const trip = await Trip.findById(tripId);
+  if (!trip) return res.status(400).json({ error: "Cannot evaluate trip" });
+  const driver = await Driver.findOne({ userId: trip.driverId });
+  if (!driver) return res.status(400).json({ error: "Driver does not exists" });
+
+  driver.passengerRates = passengerRates;
+  await driver.save();
+  res.status(200).json({ message: "Rate driver successfully" });
+};
 module.exports = {
   createTrip,
   bookTrip,
@@ -142,5 +193,7 @@ module.exports = {
   getTrip,
   deleteTrip,
   updateTrip,
-  cancelBookTrip
+  cancelBookTrip,
+  finishTheTrip,
+  ratesTrip
 };

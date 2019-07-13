@@ -7,8 +7,6 @@ const router = express.Router();
 // trip
 router.get("/:tripId", tripController.getTrip);
 
-router.get("/", tripController.getAllTrip);
-
 router.delete(
   "/:tripId",
   authenticating,
@@ -31,17 +29,31 @@ router.post(
 
 // book-trip
 router.post(
-  "/book-trip/:tripId",
+  "/book/:tripId",
   authenticating,
   authorizing(["passenger"]),
   tripController.bookTrip
 );
 
-router.post(
+router.put(
   "/cancel/:tripId",
   authenticating,
   authorizing(["passenger"]),
   tripController.cancelBookTrip
 );
 
+router.put(
+  "/finish/:tripId",
+  authenticating,
+  authorizing(["driver"]),
+  tripController.finishTheTrip
+);
+
+router.put(
+  "/rates/:tripId",
+  authenticating,
+  authorizing(["passenger"]),
+  tripController.ratesTrip
+);
+router.get("/", tripController.getAllTrip);
 module.exports = router;

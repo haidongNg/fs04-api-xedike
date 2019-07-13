@@ -17,11 +17,16 @@ router.get(
 );
 
 // router.get("/", userController.getAllUser);
-
+router.post(
+  "/rate-driver/:driverId",
+  authenticating,
+  authorizing(["passenger"]),
+  userController.rateDriver
+);
 router.delete("/delete", authenticating, userController.deleteUser);
 
 router.put("/update", authenticating, userController.updateUser);
-
+router.put("/change-password", authenticating, userController.changePassword);
 router.post(
   "/upload-avatar",
   authenticating,
@@ -29,6 +34,6 @@ router.post(
   userController.uploadAvatar
 );
 
-router.get('/:id', authenticating, userController.getUserById)
+router.get("/:id", authenticating, userController.getUserById);
 
 module.exports = router;
