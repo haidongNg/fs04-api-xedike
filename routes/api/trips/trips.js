@@ -6,14 +6,16 @@ const { Driver } = require("../../../models/driver");
 const createTrip = (req, res, next) => {
   // const { locationFrom, locationTo, startTime, availableSeats, free} = req.body;
   const driverId = req.user.id;
-  User.findById(driverId)
+  User.findById(driverId, { fullName: 1 })
     .then(driver => {
       if (!driver) return Promise.reject({ errors: "Error Driver" });
-      const trip = { ...req.body, driverId };
+      const trip = { ...req.body, driverId};
       const newTrip = new Trip(trip);
       return newTrip.save();
     })
-    .then(trip => res.status(200).json(trip))
+    .then(trip => {
+      res.status(200).json(trip);
+    })
     .catch(err => res.status(400).json(err));
 };
 
@@ -85,7 +87,7 @@ const bookTrip = async (req, res, next) => {
 
 const getAllTrip = async (req, res, next) => {
   const allTrip = await Trip.find();
-  if (!allTrip) return res.status(400).json({ error: "Not found" });
+  if (!allTrip) return res.status(400).json({ error: "List Trips Not found" });
   res.status(200).json(allTrip);
 };
 

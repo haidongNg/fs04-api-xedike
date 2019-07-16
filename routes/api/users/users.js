@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 // const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
-const validateInput = require("../../../validation/validate-input");
+const validateInput = require("../../../validation/validate-users");
 const { User } = require("../../../models/user");
 const { Driver } = require("../../../models/driver");
 
