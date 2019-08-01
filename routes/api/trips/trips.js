@@ -9,7 +9,7 @@ const createTrip = (req, res, next) => {
   User.findById(driverId, { fullName: 1 })
     .then(driver => {
       if (!driver) return Promise.reject({ errors: "Error Driver" });
-      const trip = { ...req.body, driverId};
+      const trip = { ...req.body, driverId };
       const newTrip = new Trip(trip);
       return newTrip.save();
     })
@@ -86,7 +86,13 @@ const bookTrip = async (req, res, next) => {
 // access   PUBLIC
 
 const getAllTrip = async (req, res, next) => {
-  const allTrip = await Trip.find();
+  const allTrip = await Trip.find(
+    {},
+    { availableSeats: 1, locationFrom: 1, locationTo: 1, tree: 1, startTime: 1 }
+  ).populate({
+    path: "driverId",
+    select: "fullName gender avatar",
+  });
   if (!allTrip) return res.status(400).json({ error: "List Trips Not found" });
   res.status(200).json(allTrip);
 };

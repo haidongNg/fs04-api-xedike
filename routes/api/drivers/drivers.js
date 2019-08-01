@@ -9,7 +9,7 @@ const createDriverProfile = async (req, res, next) => {
   const { address, passportId, mainJob } = req.body;
   const userId = req.user.id;
 
-  const driver = await Driver.findById(userId);
+  const driver = await Driver.findOne({userId: userId});
   console.log(driver);
   if (driver)
     return res.status(400).json({ error: "Driver's profile existed" });
@@ -24,7 +24,7 @@ const createDriverProfile = async (req, res, next) => {
     .then(dr => {
       res
         .status(200)
-        .json({ message: "Create driver profile successfully", dr });
+        .json({ message: "Create driver profile successfully"});
     })
     .catch(err => {
       res.status(400).json(err);

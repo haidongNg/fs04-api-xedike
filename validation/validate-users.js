@@ -12,6 +12,7 @@ validateInput = async (data, titles) => {
   data.password = _.get(data, "password", "");
   data.password2 = _.get(data, "password2", "");
   data.fullName = _.get(data, "fullName", "");
+  data.gender = _.get(data, 'gender', "");
   data.userType = _.get(data, "userType", "");
   data.phone = _.get(data, "phone", "");
   data.dateOfBirth = _.get(data, "dateOfBirth", "");
@@ -59,6 +60,16 @@ validateInput = async (data, titles) => {
       errors.fullName = "FullName is required";
     else if (!validator.isLength(data.fullName, { min: 2, max: 30 }))
       errors.fullName = "FullName must be between 2 and 30 characters";
+
+    // sex
+    if (validator.isEmpty(data.gender))
+      errors.gender = "Gender is required";
+    else if (
+      !validator.equals(data.gender, "nam") &&
+      !validator.equals(data.gender, "nu") &&
+      !validator.equals(data.gender, 'other')
+    )
+      errors.sex = "Choose Nam or Nu or Othe";
 
     // userType
     if (validator.isEmpty(data.userType))

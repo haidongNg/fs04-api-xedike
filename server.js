@@ -62,9 +62,9 @@ require("./config/passport")(passport);
 app.use("/uploads", express.static("uploads"));
 
 // router
-app.use("/api/users", require("./routes/api/users/index"));
-app.use("/api/trips", require("./routes/api/trips/index"));
-app.use("/api/users/drivers", require("./routes/api/drivers/index"));
+app.use("/api/v1/users", require("./routes/api/users/index"));
+app.use("/api/v1/trips", require("./routes/api/trips/index"));
+app.use("/api/v1/users/drivers", require("./routes/api/drivers/index"));
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {

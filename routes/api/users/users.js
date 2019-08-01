@@ -5,7 +5,6 @@ const validateInput = require("../../../validation/validate-users");
 const { User } = require("../../../models/user");
 const { Driver } = require("../../../models/driver");
 
-
 // const router = express.Router();
 
 // route    POST /api/users/register
@@ -15,7 +14,15 @@ const { Driver } = require("../../../models/driver");
 const register = async (req, res) => {
   const { isValid, errors } = await validateInput(req.body, "register");
   if (!isValid) return res.status(400).json(errors);
-  const { email, password, fullName, userType, phone, dateOfBirth } = req.body;
+  const {
+    email,
+    password,
+    fullName,
+    userType,
+    phone,
+    dateOfBirth,
+    gender
+  } = req.body;
 
   const newUser = new User({
     email,
@@ -23,7 +30,8 @@ const register = async (req, res) => {
     fullName,
     userType,
     phone,
-    dateOfBirth
+    dateOfBirth,
+    gender
   });
 
   bcrypt.genSalt(10, (err, salt) => {
@@ -131,14 +139,16 @@ const test_private = (req, res, next) => {
 
 const uploadAvatar = (req, res, next) => {
   const { id } = req.user;
-  User.findById(id)
+  User.findOne({ _id: id }, {avatar: 1})
     .then(user => {
       if (!user) return Promise.reject({ errors: "User does not exist" });
 
       user.avatar = req.file.path;
       return user.save();
     })
-    .then(user => res.status(200).json(user))
+    .then(user =>
+      res.status(200).json({ message: "Upload Image Susscess", user })
+    )
     .catch(err => res.status(400).json(err));
 };
 
