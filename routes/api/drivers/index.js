@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { authenticating, authorizing } = require("../../../middleware/auth");
 const driverController = require("./drivers");
-
+const upload = require("../../../middleware/uploadImage");
 router.get("/profile/:userId", driverController.getDriverProfile);
 
 router.delete(
@@ -11,7 +11,6 @@ router.delete(
   authorizing(["driver"]),
   driverController.deleteDriverProfile
 );
-
 
 router.delete(
   "/delete-car/:carId",
@@ -38,5 +37,13 @@ router.post(
   authorizing(["driver"]),
   driverController.createDriverProfile
 );
+router.post(
+  "/upload-car/:carId",
+  authenticating,
+  upload.single("carImage"),
+  authorizing(["driver"]),
+  driverController.uploadCarImage
+);
 router.get("/:driverId/cars", driverController.getProfileById);
+
 module.exports = router;

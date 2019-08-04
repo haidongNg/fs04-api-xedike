@@ -9,8 +9,7 @@ const createDriverProfile = async (req, res, next) => {
   const { address, passportId, mainJob } = req.body;
   const userId = req.user.id;
 
-  const driver = await Driver.findOne({userId: userId});
-  console.log(driver);
+  const driver = await Driver.findOne({ userId: userId });
   if (driver)
     return res.status(400).json({ error: "Driver's profile existed" });
   const newDriver = new Driver({
@@ -22,9 +21,7 @@ const createDriverProfile = async (req, res, next) => {
   await newDriver
     .save()
     .then(dr => {
-      res
-        .status(200)
-        .json({ message: "Create driver profile successfully"});
+      res.status(200).json({ message: "Create driver profile successfully" });
     })
     .catch(err => {
       res.status(400).json(err);
@@ -99,8 +96,8 @@ const addCarInfoDriver = async (req, res, next) => {
   await driver.carInfo.push(newCarInfo);
   await driver
     .save()
-    .then(dr => {
-      res.status(200).json({ message: "Add CarInfo driver successfully" });
+    . then(dr => {
+     res.status(200).json({ message: "Add CarInfo driver successfully" });
     })
     .catch(err => res.status(400).json(err));
 };
@@ -158,6 +155,36 @@ const deleteCarInfoDriver = async (req, res, next) => {
   if (!driver) return res.status(400).json({ err: "CarInfo does not exists" });
   res.status(200).json({ message: "Delete item in CarInfo successfully " });
 };
+
+const uploadCarImage = (req, res, next) => {
+  const { id } = req.user;
+  Driver.findOne({ userId: id })
+    .then(driver => {
+      if (!driver)
+        return res.status(400).json({ error: "Can't find driver's profile" });
+      const carId = req.params.carId;
+      let carLocate;
+      const carImage = req.file.path;
+      let adjustedCar = driver.carInfo.find((car, index) => {
+        carLocate = index;
+        console.log(car);
+        return car._id !== carId;
+      });
+      console.log(adjustedCar);
+      if (!adjustedCar)
+        return res.status(400).json({ error: "Cannot find car" });
+      adjustedCar.carImage = carImage;
+      driver.carInfo[carLocate] = adjustedCar;
+      return driver.save();
+    })
+    .then(driver =>
+      res.status(200).json(driver.carInfo[driver.carInfo.length - 1])
+    )
+    .catch(err => {
+      res.status(400).json(err);
+    });
+};
+
 module.exports = {
   createDriverProfile,
   getDriverProfile,
@@ -165,5 +192,6 @@ module.exports = {
   getProfileById,
   addCarInfoDriver,
   deleteCarInfoDriver,
-  updateCarInfoDriver
+  updateCarInfoDriver,
+  uploadCarImage
 };

@@ -9,7 +9,7 @@ const DriverSchema = new mongoose.Schema({
   address: { type: String, required: true },
   passportId: { type: String, required: true },
   mainJob: { type: String, required: true },
-  carInfo: [{ type: CarSchema }],
+  carInfo: { type: [CarSchema] },
   passengerRates: [
     {
       type: Number,
