@@ -91,7 +91,7 @@ const getAllTrip = async (req, res, next) => {
     { availableSeats: 1, locationFrom: 1, locationTo: 1, tree: 1, startTime: 1 }
   ).populate({
     path: "driverId",
-    select: "fullName gender avatar",
+    select: "fullName gender avatar passengerRates",
   });
   if (!allTrip) return res.status(400).json({ error: "List Trips Not found" });
   res.status(200).json(allTrip);

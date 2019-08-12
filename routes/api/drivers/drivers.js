@@ -28,6 +28,37 @@ const createDriverProfile = async (req, res, next) => {
     });
 };
 
+// route    PUT/POST /api/users/drivers/update-profile
+// desc     lấy thông tin chi tiết của một tài xế
+// access   PRIVATE: chỉ có userType=driver + đang đăng nhập mới được access
+const updateDriverProfile = async (req, res, next) => {
+  const { id } = req.user;
+  const { address, passportId, mainJob } = req.body;
+  // await Driver.findOneAndUpdate(
+  //   { _id: id },
+  //   { $set: { address: address, passportId: passportId, mainJob: mainJob } },
+  //   { useFindAndModify: false, new: true }, (err, driver) => {
+  //     if(err) return res.status(400).json({ message: "Can't find driver profile" });
+  //     if(driver) return res.status(200).json({ message: "Update driver profile successfully" });
+  //   }
+  // );
+  const driver = await Driver.findOne({ userId: id });
+  if (!driver)
+    return res.status(400).json({ message: "Can't find driver profile" });
+  driver.address = address;
+  driver.passportId = passportId;
+  driver.mainJob = mainJob;
+  await driver
+    .save()
+    .then(dr => {
+      return res
+        .status(200)
+        .json({ message: "Update driver profile successfully" });
+    })
+    .catch(err => {
+      return res.status(400).json(err);
+    });
+};
 // route    GET /api/user/drivers/profile/:userId
 // desc     lấy thông tin chi tiết của một tài xế
 // access   PUBLIC (Tat ca nguoi dung deu co the access)
@@ -61,7 +92,7 @@ const deleteDriverProfile = async (req, res, next) => {
 // desc     lấy danh sách xe hơi của một tài xế
 // access   PUBLIC: tất cả mọi người dùng (kể cả người dùng vãng lai) đều có thể access
 
-const getProfileById = async (req, res, next) => {
+const getProfileCarById = async (req, res, next) => {
   const { driverId } = req.params;
   const driver = await Driver.findById(driverId, { carInfo: 1 });
   if (!driver) {
@@ -96,8 +127,8 @@ const addCarInfoDriver = async (req, res, next) => {
   await driver.carInfo.push(newCarInfo);
   await driver
     .save()
-    . then(dr => {
-     res.status(200).json({ message: "Add CarInfo driver successfully" });
+    .then(dr => {
+      res.status(200).json({ message: "Add CarInfo driver successfully" });
     })
     .catch(err => res.status(400).json(err));
 };
@@ -187,9 +218,10 @@ const uploadCarImage = (req, res, next) => {
 
 module.exports = {
   createDriverProfile,
+  updateDriverProfile,
   getDriverProfile,
   deleteDriverProfile,
-  getProfileById,
+  getProfileCarById,
   addCarInfoDriver,
   deleteCarInfoDriver,
   updateCarInfoDriver,

@@ -173,9 +173,13 @@ const updateUser = async (req, res, next) => {
   const { id } = req.user;
   const user = await User.findById(id);
   if (!id) return res.status(400).json({ error: "User does not exist" });
-  const { fullName } = req.body;
-  if (!fullName) return res.status(400).json({ error: "Error form" });
+  const { fullName, gender, dateOfBirth } = req.body;
+
+  if (!fullName || !gender || !dateOfBirth) return res.status(400).json({ error: "Error form" });
+  
   user.fullName = fullName;
+  user.gender = gender;
+  user.dateOfBirth = dateOfBirth;
   const newUser = await user.save();
   if (!newUser) return res.status(400).json({ error: "User update failed" });
   res.status(200).json({ message: "Update users successfully" });

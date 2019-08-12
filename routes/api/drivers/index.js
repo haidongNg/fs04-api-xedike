@@ -3,6 +3,7 @@ const router = express.Router();
 const { authenticating, authorizing } = require("../../../middleware/auth");
 const driverController = require("./drivers");
 const upload = require("../../../middleware/uploadImage");
+
 router.get("/profile/:userId", driverController.getDriverProfile);
 
 router.delete(
@@ -37,6 +38,12 @@ router.post(
   authorizing(["driver"]),
   driverController.createDriverProfile
 );
+router.put(
+  "/update-profile",
+  authenticating,
+  authorizing(["driver"]),
+  driverController.updateDriverProfile
+);
 router.post(
   "/upload-car/:carId",
   authenticating,
@@ -44,6 +51,6 @@ router.post(
   authorizing(["driver"]),
   driverController.uploadCarImage
 );
-router.get("/:driverId/cars", driverController.getProfileById);
+router.get("/:driverId/cars", driverController.getProfileCarById);
 
 module.exports = router;
