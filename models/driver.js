@@ -13,7 +13,9 @@ const DriverSchema = new mongoose.Schema({
   passengerRates: [
     {
       type: Number,
-      required: false
+      required: false,
+      min: 1,
+      max: 5
     }
   ]
 });

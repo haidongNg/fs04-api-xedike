@@ -5,7 +5,12 @@ const driverController = require("./drivers");
 const upload = require("../../../middleware/uploadImage");
 
 router.get("/profile/:userId", driverController.getDriverProfile);
-
+router.get(
+  "/getTripDriver/:userId",
+  authenticating,
+  authorizing(["driver"]),
+  driverController.getTripDriver
+);
 router.delete(
   "/delete-profile",
   authenticating,
@@ -51,6 +56,8 @@ router.post(
   authorizing(["driver"]),
   driverController.uploadCarImage
 );
+
 router.get("/:driverId/cars", driverController.getProfileCarById);
 
+router.get("/getDriverUsers", driverController.getDriverInfoUsers);
 module.exports = router;

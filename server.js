@@ -3,13 +3,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const app = express();
-require('dotenv').config();
+require("dotenv").config();
 // my packages
 
-let moongoUrl = '';
-if(process.env.STAGE === 'development'){
+let moongoUrl = "";
+if (process.env.STAGE === "development") {
   moongoUrl = process.env.MONGO_URL_DEV;
-} else if(process.env.STAGE === 'production') {
+} else if (process.env.STAGE === "production") {
   moongoUrl = process.env.MONGO_URL_PROD;
 }
 // linux export=development
@@ -40,7 +40,7 @@ mongoose
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+  res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE, OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept, Authorization, fingerprint"
@@ -52,7 +52,7 @@ app.use(function(req, res, next) {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/', express.static('public'));
+app.use("/", express.static("public"));
 
 // Middleware: passport
 app.use(passport.initialize());

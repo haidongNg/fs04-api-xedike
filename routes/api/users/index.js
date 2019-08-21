@@ -8,6 +8,7 @@ const passport = require("passport");
 router.post("/register", userController.register);
 
 router.post("/login", userController.login);
+
 router.get(
   "/test-private",
   authenticating,
@@ -23,6 +24,9 @@ router.post(
   authorizing(["passenger"]),
   userController.rateDriver
 );
+
+router.get("/trip-history", authenticating, userController.getTripHistory);
+
 router.delete("/delete", authenticating, userController.deleteUser);
 
 router.put("/update", authenticating, userController.updateUser);
@@ -33,7 +37,7 @@ router.post(
   upload.single("avatar"),
   userController.uploadAvatar
 );
-
 router.get("/:id", authenticating, userController.getUserById);
 
+router.get("/", userController.getAllUser);
 module.exports = router;

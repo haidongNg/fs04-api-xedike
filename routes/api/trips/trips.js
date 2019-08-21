@@ -85,16 +85,48 @@ const bookTrip = async (req, res, next) => {
 // desc     lay danh sach trip
 // access   PUBLIC
 
-const getAllTrip = async (req, res, next) => {
-  const allTrip = await Trip.find(
-    {},
-    { availableSeats: 1, locationFrom: 1, locationTo: 1, tree: 1, startTime: 1 }
-  ).populate({
-    path: "driverId",
-    select: "fullName gender avatar passengerRates",
-  });
-  if (!allTrip) return res.status(400).json({ error: "List Trips Not found" });
-  res.status(200).json(allTrip);
+const getTrips = async (req, res, next) => {
+  Promise.all([
+    Trip.find(
+      { isFinished: { $eq: false } },
+      {
+        availableSeats: 1,
+        locationFrom: 1,
+        locationTo: 1,
+        tree: 1,
+        startTime: 1,
+        driverId: 1,
+        isFinished: 1
+      }
+    ),
+    Driver.find({}, { carInfo: 1, passengerRates: 1, userId: 1 }).populate({
+      path: "userId",
+      model: User,
+      select: "email phone fullName gender avatar isActive"
+    })
+  ])
+    .then(results => {
+      const trips = results[0];
+      const drivers = results[1];
+      const data = [];
+      if (!trips)
+        return res.status(400).json({ error: "List Trips Not found" });
+      trips.map(trip => {
+        const driver = drivers.find(
+          d => d.userId._id.toString() === trip.driverId.toString()
+        );
+        if (driver) {
+          data.push({ trip, driver });
+        }
+      });
+      return data;
+    })
+    .then(data => {
+      return res.status(200).json(data);
+    })
+    .catch(err => {
+      return res.status(400).json(err);
+    });
 };
 
 // route    GET /api/trip/:tripId
@@ -141,28 +173,37 @@ const updateTrip = async (req, res, next) => {
 // desc     huy 1 chuyen di
 // access   PRIVATE Passenger dang nhap moi co quyen access
 
-const cancelBookTrip = async (req, res, next) => {
+const cancelBookTrip = (req, res, next) => {
   const { tripId } = req.params;
   const passengerId = req.user.id;
-  console.log(passengerId);
-  const user = await User.findById(passengerId);
-  const trip = await Trip.findById(tripId);
 
-  if (!user) return res.status(400).json({ error: "User not found" });
-  if (!trip) return res.status(400).json({ error: "Trip not found" });
+  Promise.all([User.findById(passengerId), Trip.findById(tripId)])
+    .then(results => {
+      debugger;
+      const user = results[0];
+      const trip = results[1];
+      if (!user) return res.status(400).json({ error: "User not found" });
+      if (!trip) return res.status(400).json({ error: "Trip not found" });
 
-  if (numberOfBookingSeats > trip.numberOfBookingSeats)
-    return res.status(400).json("Number of booking trip not found");
-  trip.availableSeats += Number(numberOfBookingSeats);
-  const index = await trip.passengers.findIndex(
-    i => i.passengerId === passengerId
-  );
-  console.log(index);
-  if (index)
-    return res.status(400).json({ error: "User not found PassengerIDs" });
-  await trip.passengers.splice(index, 1);
-  await trip.save();
-  return res.status(200).json(trip);
+      const item = trip.passengers.find(
+        u => u.passengerId.toString() === passengerId.toString()
+      );
+      if (!item) return res.status(400).json({ error: "Not found" });
+      if (item.numberOfBookingSeats > trip.numberOfBookingSeats)
+        return res.status(400).json("Number of booking trip not found");
+      trip.availableSeats += Number(item.numberOfBookingSeats);
+      const index = trip.passengers.findIndex(
+        i => i.passengerId.toString() === passengerId.toString()
+      );
+      trip.passengers.splice(index, 1);
+      return trip.save();
+    })
+    .then(trip => {
+      res.status(200).json({ message: "success" });
+    })
+    .catch(err => {
+      res.status(400).json(err);
+    });
 };
 
 // route    POST /api/trip/finish/:tripId
@@ -171,11 +212,16 @@ const cancelBookTrip = async (req, res, next) => {
 
 const finishTheTrip = async (req, res, next) => {
   const { tripId } = req.params;
-  const trip = await Trip.findById(tripId);
-  if (!trip) return res.status(400).json({ error: "Trip does not exists" });
-  trip.isFinished = true;
-  await trip.save();
-  res.status(200).json({ message: "Finish the trip" });
+  Trip.findById(tripId)
+    .then(trip => {
+      if (!trip) return res.status(400).json({ error: "Trip does not exists" });
+      trip.isFinished = true;
+      return trip.save();
+    })
+    .then(trip => res.status(200).json({ message: "Finish the trip" }))
+    .catch(err => {
+      res.status(400).json(err);
+    });
 };
 
 // route    POST /api/trips/rates/:tripId
@@ -190,14 +236,15 @@ const ratesTrip = async (req, res, next) => {
   const driver = await Driver.findOne({ userId: trip.driverId });
   if (!driver) return res.status(400).json({ error: "Driver does not exists" });
 
-  driver.passengerRates = passengerRates;
+  await driver.passengerRates.push(passengerRates);
   await driver.save();
   res.status(200).json({ message: "Rate driver successfully" });
 };
+
 module.exports = {
   createTrip,
   bookTrip,
-  getAllTrip,
+  getTrips,
   getTrip,
   deleteTrip,
   updateTrip,

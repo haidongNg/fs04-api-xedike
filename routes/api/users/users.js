@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const validateInput = require("../../../validation/validate-users");
 const { User } = require("../../../models/user");
 const { Driver } = require("../../../models/driver");
+const { Trip } = require("../../../models/trip");
 
 // const router = express.Router();
 
@@ -139,7 +140,7 @@ const test_private = (req, res, next) => {
 
 const uploadAvatar = (req, res, next) => {
   const { id } = req.user;
-  User.findOne({ _id: id }, {avatar: 1})
+  User.findOne({ _id: id }, { avatar: 1 })
     .then(user => {
       if (!user) return Promise.reject({ errors: "User does not exist" });
 
@@ -175,8 +176,9 @@ const updateUser = async (req, res, next) => {
   if (!id) return res.status(400).json({ error: "User does not exist" });
   const { fullName, gender, dateOfBirth } = req.body;
 
-  if (!fullName || !gender || !dateOfBirth) return res.status(400).json({ error: "Error form" });
-  
+  if (!fullName || !gender || !dateOfBirth)
+    return res.status(400).json({ error: "Error form" });
+
   user.fullName = fullName;
   user.gender = gender;
   user.dateOfBirth = dateOfBirth;
@@ -253,6 +255,48 @@ const changePassword = async (req, res, next) => {
   });
 };
 
+// route    PUT /api/users/trip-history
+// desc     get trip history
+// access   private (User dang nhap co the access)
+
+const getTripHistory = (req, res, next) => {
+  const { id } = req.user;
+
+  Promise.all([
+    User.findById(id),
+    Trip.find({ "passengers.passengerId": { $eq: id } }).populate({
+      path: "driverId",
+      model: User,
+      select: "fullName gender avatar"
+    }),
+    Driver.find({}, { passengerRates: 1, carInfo: 1, userId: 1 })
+  ])
+    .then(result => {
+      debugger;
+      const passenger = result[0];
+      const trips = result[1];
+      const drivers = result[2];
+      const list = [];
+      if (!passenger) Promise.reject({ error: "User not found" });
+      trips.map(trip => {
+        const driver = drivers.find(
+          u => u.userId.toString() === trip.driverId._id.toString()
+        );
+        if (driver) {
+          list.push({ trip, driver });
+        }
+      });
+      return list;
+    })
+    .then(data => {
+      return res.status(200).json(data);
+    })
+    .catch(err => {
+      res.status(400).json(err);
+    });
+};
+
+
 module.exports = {
   register,
   login,
@@ -263,5 +307,6 @@ module.exports = {
   deleteUser,
   getUserById,
   rateDriver,
-  changePassword
+  changePassword,
+  getTripHistory
 };

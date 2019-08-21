@@ -5,14 +5,7 @@ const tripController = require("./trips");
 const router = express.Router();
 
 // trip
-router.get("/:tripId", tripController.getTrip);
 
-router.delete(
-  "/:tripId",
-  authenticating,
-  authorizing(["driver"]),
-  tripController.deleteTrip
-);
 
 router.put(
   "/:tripId",
@@ -35,25 +28,33 @@ router.post(
   tripController.bookTrip
 );
 
-router.put(
+router.post(
   "/cancel/:tripId",
   authenticating,
   authorizing(["passenger"]),
   tripController.cancelBookTrip
 );
 
-router.put(
+router.patch(
   "/finish/:tripId",
   authenticating,
   authorizing(["driver"]),
   tripController.finishTheTrip
 );
 
-router.put(
+router.post(
   "/rates/:tripId",
   authenticating,
   authorizing(["passenger"]),
   tripController.ratesTrip
 );
-router.get("/", tripController.getAllTrip);
+router.delete(
+  "/:tripId",
+  authenticating,
+  authorizing(["driver"]),
+  tripController.deleteTrip
+);
+
+router.get("/:tripId", tripController.getTrip);
+router.get("/", tripController.getTrips);
 module.exports = router;

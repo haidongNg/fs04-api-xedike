@@ -1,5 +1,6 @@
 const { Driver } = require("../../../models/driver");
 const { Car } = require("../../../models/car");
+const { Trip } = require("../../../models/trip");
 const { User } = require("../../../models/user");
 const _ = require("lodash");
 // route     POST /api/users/drivers/create-profile
@@ -187,6 +188,11 @@ const deleteCarInfoDriver = async (req, res, next) => {
   res.status(200).json({ message: "Delete item in CarInfo successfully " });
 };
 
+// route     POST /api/users/drivers//upload-car/:carId
+// desc      upload card
+// access    PRIVATE: chỉ có userType=driver + đang đăng nhập mới được access
+
+
 const uploadCarImage = (req, res, next) => {
   const { id } = req.user;
   Driver.findOne({ userId: id })
@@ -216,6 +222,42 @@ const uploadCarImage = (req, res, next) => {
     });
 };
 
+
+// route     GET /api/users/drivers//getDriverUsers
+// desc      lay thong tin userDriver
+// access    PRIVATE: chỉ có userType=driver + đang đăng nhập mới được access
+
+const getDriverInfoUsers = async (req, res, next) => {
+  const result = await Driver.find(
+    {},
+    { carInfo: 1, passengerRates: 1 }
+  ).populate({
+    path: "userId",
+    model: User,
+    select: "email phone fullName gender avatar isActive"
+  });
+  if (!result)
+    return res.status(400).json({ message: "Cannot find User Driver" });
+  return res.status(200).json(result);
+};
+
+const getTripDriver = async (req, res, next) => {
+  const {userId} = req.params;
+  Promise.all([Driver.findOne({ userId: userId }), Trip.find({driverId: userId})])
+    .then(result => {
+      const driver = result[0];
+      const trips = result[1];
+      if (!driver) return Promise.reject({ error: "User not found" });
+      return trips;
+    })
+    .then(data => {
+      res.status(200).json(data);
+    })
+    .catch(err => {
+      res.status(400).json(err);
+    });
+};
+
 module.exports = {
   createDriverProfile,
   updateDriverProfile,
@@ -225,5 +267,7 @@ module.exports = {
   addCarInfoDriver,
   deleteCarInfoDriver,
   updateCarInfoDriver,
-  uploadCarImage
+  uploadCarImage,
+  getDriverInfoUsers,
+  getTripDriver
 };

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const TripSchema = new mongoose.Schema({
   driverId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Driver",
     required: true
   },
   locationFrom: { type: String, required: true },
@@ -25,7 +25,7 @@ const TripSchema = new mongoose.Schema({
     }
   ],
   tree: { type: Number, required: true },
-  isFinished: { type: Boolean, required: false }
+  isFinished: { type: Boolean, required: true, default: false }
 });
 
 const Trip = mongoose.model("Trip", TripSchema);
