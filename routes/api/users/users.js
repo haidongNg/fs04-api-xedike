@@ -288,9 +288,9 @@ const getTripHistory = (req, res, next) => {
       const passenger = result[0];
       const trips = result[1];
       const drivers = result[2];
-      const list = [];
+      
       if (!passenger) Promise.reject({ error: "User not found" });
-      trips.map(trip => {
+      const list = trips.map(trip => {
         const driver = drivers.find(
           u => u.userId.toString() === trip.driverId._id.toString()
         );
@@ -304,7 +304,7 @@ const getTripHistory = (req, res, next) => {
       return res.status(200).json(data);
     })
     .catch(err => {
-      res.status(400).json(err);
+      return res.status(400).json(err);
     });
 };
 

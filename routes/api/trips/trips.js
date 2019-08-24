@@ -46,8 +46,9 @@ const bookTrip = async (req, res, next) => {
   if (!passenger)
     return res.status(400).json({ errors: "passenger not found" });
   if (!trip) return res.status(400).json({ errors: "trip not found" });
-  if (numberOfBookingSeats > trip.availableSeats)
-    return res.status(400).json({ errors: "Your book" });
+  if (numberOfBookingSeats > trip.availableSeats){
+    errors.numberOfBookingSeats = "numberOfBookingSeats not greater than availableSeats"
+    return res.status(400).json(errors)};
 
   trip.availableSeats -= numberOfBookingSeats;
   const newTripPassenger = {
@@ -192,10 +193,9 @@ const updateTrip = async (req, res, next) => {
 const cancelBookTrip = (req, res, next) => {
   const { tripId } = req.params;
   const passengerId = req.user.id;
-
   Promise.all([User.findById(passengerId), Trip.findById(tripId)])
     .then(results => {
-      debugger;
+      debugger
       const user = results[0];
       const trip = results[1];
       if (!user) return res.status(400).json({ error: "User not found" });
