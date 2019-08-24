@@ -1,10 +1,17 @@
 const { Trip } = require("../../../models/trip");
 const { User } = require("../../../models/user");
 const { Driver } = require("../../../models/driver");
+const {
+  validateCreateTrip,
+  validateBookTrip,
+  validateUpdateTrip
+} = require("../../../validation/validate-trips");
 
 //create trip
-const createTrip = (req, res, next) => {
+const createTrip = async (req, res, next) => {
+  const { isValid, errors } = await validateCreateTrip(req.body);
   // const { locationFrom, locationTo, startTime, availableSeats, free} = req.body;
+  if (!isValid) return res.status(400).json(errors);
   const driverId = req.user.id;
   User.findById(driverId, { fullName: 1 })
     .then(driver => {
@@ -21,6 +28,8 @@ const createTrip = (req, res, next) => {
 
 // Async/await
 const bookTrip = async (req, res, next) => {
+  const { isValid, errors } = await validateBookTrip(req.body);
+  if (!isValid) return res.status(400).json(errors);
   const { tripId } = req.params; // id trip
   const {
     locationGetIn,
@@ -93,7 +102,7 @@ const getTrips = async (req, res, next) => {
         availableSeats: 1,
         locationFrom: 1,
         locationTo: 1,
-        tree: 1,
+        fee: 1,
         startTime: 1,
         driverId: 1,
         isFinished: 1
@@ -159,14 +168,21 @@ const deleteTrip = async (req, res, next) => {
 // access   PRIVATE Driver dang nhap moi co quyen access
 
 const updateTrip = async (req, res, next) => {
+  const { isValid, errors } = await validateUpdateTrip(req.body);
+  if (!isValid) return res.status(400).json(errors);
   const { tripId } = req.params;
-  await Trip.findByIdAndUpdate(tripId, req.body, { new: true }, (err, trip) => {
-    if (err) {
-      console.log(err);
-      return res.status(400).json(err);
+  const { locationFrom, locationTo, startTime, availableSeats, fee } = req.body;
+  await Trip.findByIdAndUpdate(
+    tripId,
+    { locationFrom, locationTo, startTime, availableSeats, fee },
+    { new: true },
+    (err, trip) => {
+      if (err) {
+        return res.status(400).json(err);
+      }
+      res.status(200).json({ message: "success", trip });
     }
-    res.status(200).json({ message: "success", trip });
-  });
+  );
 };
 
 // route    POST /api/trip/cancel/:tripId

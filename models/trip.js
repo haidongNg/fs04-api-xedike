@@ -24,7 +24,7 @@ const TripSchema = new mongoose.Schema({
       notes: { type: String, required: false }
     }
   ],
-  tree: { type: Number, required: true },
+  fee: { type: Number, required: true },
   isFinished: { type: Boolean, required: true, default: false }
 });
 

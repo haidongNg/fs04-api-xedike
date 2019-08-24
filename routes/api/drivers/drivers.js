@@ -3,10 +3,17 @@ const { Car } = require("../../../models/car");
 const { Trip } = require("../../../models/trip");
 const { User } = require("../../../models/user");
 const _ = require("lodash");
+const {
+  validateCar,
+  validateDriverProfile
+} = require("../../../validation/validate-drivers");
+
 // route     POST /api/users/drivers/create-profile
 // desc      tạo thông tin chi tiết cho một driver
 // access    PRIVATE: chỉ có userType=driver mới được access
 const createDriverProfile = async (req, res, next) => {
+  const { isValid, errors } = await validateDriverProfile(req.body);
+  if (!isValid) return res.status(400).json(errors);
   const { address, passportId, mainJob } = req.body;
   const userId = req.user.id;
 
@@ -33,6 +40,8 @@ const createDriverProfile = async (req, res, next) => {
 // desc     lấy thông tin chi tiết của một tài xế
 // access   PRIVATE: chỉ có userType=driver + đang đăng nhập mới được access
 const updateDriverProfile = async (req, res, next) => {
+  const { isValid, errors } = await validateDriverProfile(req.body);
+  if (!isValid) return res.status(400).json(errors);
   const { id } = req.user;
   const { address, passportId, mainJob } = req.body;
   // await Driver.findOneAndUpdate(
@@ -108,6 +117,8 @@ const getProfileCarById = async (req, res, next) => {
 // access   PRIVATE: chỉ có userType=driver + đang đăng nhập mới được access
 
 const addCarInfoDriver = async (req, res, next) => {
+  const { isValid, errors } = await validateCar(req.body);
+  if (!isValid) return res.status(400).json(errors);
   const {
     brand,
     model,
@@ -139,6 +150,8 @@ const addCarInfoDriver = async (req, res, next) => {
 // access    PRIVATE: chỉ có userType=driver + đang đăng nhập mới được access
 
 const updateCarInfoDriver = async (req, res, next) => {
+  const { isValid, errors } = await validateCar(req.body);
+  if (!isValid) return res.status(400).json(errors);
   const { carId } = req.params;
   const {
     brand,
@@ -192,7 +205,6 @@ const deleteCarInfoDriver = async (req, res, next) => {
 // desc      upload card
 // access    PRIVATE: chỉ có userType=driver + đang đăng nhập mới được access
 
-
 const uploadCarImage = (req, res, next) => {
   const { id } = req.user;
   Driver.findOne({ userId: id })
@@ -222,7 +234,6 @@ const uploadCarImage = (req, res, next) => {
     });
 };
 
-
 // route     GET /api/users/drivers//getDriverUsers
 // desc      lay thong tin userDriver
 // access    PRIVATE: chỉ có userType=driver + đang đăng nhập mới được access
@@ -242,8 +253,11 @@ const getDriverInfoUsers = async (req, res, next) => {
 };
 
 const getTripDriver = async (req, res, next) => {
-  const {userId} = req.params;
-  Promise.all([Driver.findOne({ userId: userId }), Trip.find({driverId: userId})])
+  const { userId } = req.params;
+  Promise.all([
+    Driver.findOne({ userId: userId }),
+    Trip.find({ driverId: userId })
+  ])
     .then(result => {
       const driver = result[0];
       const trips = result[1];

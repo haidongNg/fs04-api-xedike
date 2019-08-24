@@ -1,7 +1,12 @@
 const bcrypt = require("bcryptjs");
 // const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
-const validateInput = require("../../../validation/validate-users");
+const {
+  validateSignin,
+  validateSignup,
+  validateUpdateProfile,
+  validateChangePassword
+} = require("../../../validation/validate-users");
 const { User } = require("../../../models/user");
 const { Driver } = require("../../../models/driver");
 const { Trip } = require("../../../models/trip");
@@ -13,7 +18,7 @@ const { Trip } = require("../../../models/trip");
 // access   PUBLIC
 
 const register = async (req, res) => {
-  const { isValid, errors } = await validateInput(req.body, "register");
+  const { isValid, errors } = await validateSignup(req.body);
   if (!isValid) return res.status(400).json(errors);
   const {
     email,
@@ -66,7 +71,7 @@ const register = async (req, res) => {
 // access   PUBLIC
 
 const login = async (req, res) => {
-  const { isValid, errors } = await validateInput(req.body);
+  const { isValid, errors } = await validateSignin(req.body);
   if (!isValid) return res.status(400).json(errors);
   const { email, password, fingerprint } = req.body;
 
@@ -171,6 +176,8 @@ const getAllUser = async (req, res, next) => {
 // access   PRIVATE (Chi co user dang nhap vao he thong thi moi duoc chinh sua)
 
 const updateUser = async (req, res, next) => {
+  const { isValid, errors } = await validateUpdateProfile(req.body);
+  if (!isValid) return res.status(400).json(errors);
   const { id } = req.user;
   const user = await User.findById(id);
   if (!id) return res.status(400).json({ error: "User does not exist" });
@@ -230,6 +237,8 @@ const rateDriver = async (req, res, next) => {
 // desc     update password
 // access   PUBLIC (User dang nhap co the access)
 const changePassword = async (req, res, next) => {
+  const { isValid, errors } = await validateChangePassword(req.body);
+  if (!isValid) return res.status(400).json(errors);
   const userId = req.user.id;
   const user = await User.findById(userId);
   if (!user) return res.status(400).json({ error: "User does not exist" });
@@ -238,7 +247,10 @@ const changePassword = async (req, res, next) => {
   // neu dung thi newpassword cap nhap lai cho user
   // hashing password luu tren db
   bcrypt.compare(oldPassword, user.password).then(isMatch => {
-    if (!isMatch) return res.status(400).json({ error: "Wrong password" });
+    if (!isMatch) {
+      errors.oldPassword = "Wrong password";
+      return res.status(400).json(errors);
+    }
     user.password = newPassword;
 
     bcrypt.genSalt(10, (err, salt) => {
@@ -295,7 +307,6 @@ const getTripHistory = (req, res, next) => {
       res.status(400).json(err);
     });
 };
-
 
 module.exports = {
   register,
